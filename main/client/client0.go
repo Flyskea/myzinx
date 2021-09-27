@@ -123,13 +123,14 @@ func client1() {
 
 func main() {
 	wg := sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		client0()
+		wg.Done()
 	}()
-	wg.Add(1)
 	go func() {
 		client1()
+		wg.Done()
 	}()
 	wg.Wait()
 }
