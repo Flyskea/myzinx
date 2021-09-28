@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"myzinx/ziface"
 	"myzinx/znet"
+	"myzinx/ztimer"
+	"time"
 )
 
 //ping test 自定义路由
@@ -12,7 +14,7 @@ type PingRouter struct {
 }
 
 //Ping Handle
-func (this *PingRouter) Handle(request ziface.IRequest) {
+func (pr *PingRouter) Handle(request ziface.IRequest) {
 	fmt.Println("Call PingRouter Handle")
 	//先读取客户端的数据，再回写ping...ping...ping
 	fmt.Println("recv from client : msgId=", request.GetMsgID(), ", data=", string(request.GetData()))
@@ -28,7 +30,7 @@ type HelloZinxRouter struct {
 }
 
 //HelloZinxRouter Handle
-func (this *HelloZinxRouter) Handle(request ziface.IRequest) {
+func (hzr *HelloZinxRouter) Handle(request ziface.IRequest) {
 	fmt.Println("Call HelloZinxRouter Handle")
 	//先读取客户端的数据，再回写ping...ping...ping
 	fmt.Println("recv from client : msgId=", request.GetMsgID(), ", data=", string(request.GetData()))
@@ -81,7 +83,13 @@ func main() {
 	//配置路由
 	s.AddRouter(0, &PingRouter{})
 	s.AddRouter(1, &HelloZinxRouter{})
-
+	timer := ztimer.NewAutoExecTimerScheduler()
+	timer.CreateTimerAfter(ztimer.NewDelayFunc(func(v ...interface{}) {
+		fmt.Println("我是延迟函数")
+	}, nil), 1*time.Microsecond)
+	timer.CreateTimerAfter(ztimer.NewDelayFunc(func(v ...interface{}) {
+		fmt.Println("我是延迟函数")
+	}, nil), 10*time.Second)
 	//开启服务
 	s.Serve()
 }
