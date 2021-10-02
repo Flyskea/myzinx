@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-//ping test 自定义路由
+// ping test 自定义路由
 type PingRouter struct {
 	znet.BaseRouter
 }
 
-//Ping Handle
+// Ping Handle
 func (pr *PingRouter) Handle(request ziface.IRequest) {
 	fmt.Println("Call PingRouter Handle")
-	//先读取客户端的数据，再回写ping...ping...ping
+	// 先读取客户端的数据，再回写ping...ping...ping
 	fmt.Println("recv from client : msgId=", request.GetMsgID(), ", data=", string(request.GetData()))
 
 	err := request.GetConnection().SendBuffMsg(0, []byte("ping...ping...ping"))
@@ -29,10 +29,10 @@ type HelloZinxRouter struct {
 	znet.BaseRouter
 }
 
-//HelloZinxRouter Handle
+// HelloZinxRouter Handle
 func (hzr *HelloZinxRouter) Handle(request ziface.IRequest) {
 	fmt.Println("Call HelloZinxRouter Handle")
-	//先读取客户端的数据，再回写ping...ping...ping
+	// 先读取客户端的数据，再回写ping...ping...ping
 	fmt.Println("recv from client : msgId=", request.GetMsgID(), ", data=", string(request.GetData()))
 
 	err := request.GetConnection().SendBuffMsg(1, []byte("Hello Zinx Router V0.10"))
@@ -41,15 +41,15 @@ func (hzr *HelloZinxRouter) Handle(request ziface.IRequest) {
 	}
 }
 
-//创建连接的时候执行
+// 创建连接的时候执行
 func DoConnectionBegin(conn ziface.IConnection) {
 	fmt.Println("DoConnecionBegin is Called ... ")
 
-	//=============设置两个链接属性，在连接创建之后===========
+	// =============设置两个链接属性，在连接创建之后===========
 	fmt.Println("Set conn Name, Home done!")
 	conn.SetProperty("Name", "Flyskea")
-	conn.SetProperty("Home", "https://github.com/Flyskea")
-	//===================================================
+	conn.SetProperty("Home", "https:// github.com/Flyskea")
+	// ===================================================
 
 	err := conn.SendMsg(2, []byte("DoConnection BEGIN..."))
 	if err != nil {
@@ -57,9 +57,9 @@ func DoConnectionBegin(conn ziface.IConnection) {
 	}
 }
 
-//连接断开的时候执行
+// 连接断开的时候执行
 func DoConnectionLost(conn ziface.IConnection) {
-	//============在连接销毁之前，查询conn的Name，Home属性=====
+	// ============在连接销毁之前，查询conn的Name，Home属性=====
 	if name, err := conn.GetProperty("Name"); err == nil {
 		fmt.Println("Conn Property Name = ", name)
 	}
@@ -67,20 +67,20 @@ func DoConnectionLost(conn ziface.IConnection) {
 	if home, err := conn.GetProperty("Home"); err == nil {
 		fmt.Println("Conn Property Home = ", home)
 	}
-	//===================================================
+	// ===================================================
 
 	fmt.Println("DoConneciotnLost is Called ... ")
 }
 
 func main() {
-	//创建一个server句柄
+	// 创建一个server句柄
 	s := znet.NewServer()
 
-	//注册链接hook回调函数
+	// 注册链接hook回调函数
 	s.SetOnConnStart(DoConnectionBegin)
 	s.SetOnConnStop(DoConnectionLost)
 
-	//配置路由
+	// 配置路由
 	s.AddRouter(0, &PingRouter{})
 	s.AddRouter(1, &HelloZinxRouter{})
 	timer := ztimer.NewAutoExecTimerScheduler()
@@ -90,6 +90,6 @@ func main() {
 	timer.CreateTimerAfter(ztimer.NewDelayFunc(func(v ...interface{}) {
 		fmt.Println("我是延迟函数")
 	}, nil), 10*time.Second)
-	//开启服务
+	// 开启服务
 	s.Serve()
 }

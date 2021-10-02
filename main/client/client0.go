@@ -15,7 +15,7 @@ import (
 
 func client0() {
 	fmt.Println("Client Test ... start")
-	//3秒之后发起测试请求，给服务端开启服务的机会
+	// 3秒之后发起测试请求，给服务端开启服务的机会
 	time.Sleep(3 * time.Second)
 
 	conn, err := net.Dial("tcp", "127.0.0.1:7777")
@@ -25,7 +25,7 @@ func client0() {
 	}
 
 	for {
-		//发封包message消息
+		// 发封包message消息
 		dp := znet.NewDataPack()
 		msg, _ := dp.Pack(znet.NewMsgPackage(0, []byte("Zinx V0.6 Client0 Test Message")))
 		_, err := conn.Write(msg)
@@ -34,14 +34,14 @@ func client0() {
 			return
 		}
 
-		//先读出流中的head部分
+		// 先读出流中的head部分
 		headData := make([]byte, dp.GetHeadLen())
-		_, err = io.ReadFull(conn, headData) //ReadFull 会把msg填充满为止
+		_, err = io.ReadFull(conn, headData) // ReadFull 会把msg填充满为止
 		if err != nil {
 			fmt.Println("read head error")
 			break
 		}
-		//将headData字节流 拆包到msg中
+		// 将headData字节流 拆包到msg中
 		msgHead, err := dp.Unpack(headData)
 		if err != nil {
 			fmt.Println("server unpack err:", err)
@@ -49,11 +49,11 @@ func client0() {
 		}
 
 		if msgHead.GetDataLen() > 0 {
-			//msg 是有data数据的，需要再次读取data数据
+			// msg 是有data数据的，需要再次读取data数据
 			msg := msgHead.(*znet.Message)
 			msg.Data = make([]byte, msg.GetDataLen())
 
-			//根据dataLen从io中读取字节流
+			// 根据dataLen从io中读取字节流
 			_, err := io.ReadFull(conn, msg.Data)
 			if err != nil {
 				fmt.Println("server unpack data err:", err)
@@ -69,7 +69,7 @@ func client0() {
 
 func client1() {
 	fmt.Println("Client Test ... start")
-	//3秒之后发起测试请求，给服务端开启服务的机会
+	// 3秒之后发起测试请求，给服务端开启服务的机会
 	time.Sleep(3 * time.Second)
 
 	conn, err := net.Dial("tcp", "127.0.0.1:7777")
@@ -79,7 +79,7 @@ func client1() {
 	}
 
 	for {
-		//发封包message消息
+		// 发封包message消息
 		dp := znet.NewDataPack()
 		msg, _ := dp.Pack(znet.NewMsgPackage(1, []byte("Zinx V0.6 Client1 Test Message")))
 		_, err := conn.Write(msg)
@@ -88,14 +88,14 @@ func client1() {
 			return
 		}
 
-		//先读出流中的head部分
+		// 先读出流中的head部分
 		headData := make([]byte, dp.GetHeadLen())
-		_, err = io.ReadFull(conn, headData) //ReadFull 会把msg填充满为止
+		_, err = io.ReadFull(conn, headData) // ReadFull 会把msg填充满为止
 		if err != nil {
 			fmt.Println("read head error")
 			break
 		}
-		//将headData字节流 拆包到msg中
+		// 将headData字节流 拆包到msg中
 		msgHead, err := dp.Unpack(headData)
 		if err != nil {
 			fmt.Println("server unpack err:", err)
@@ -103,11 +103,11 @@ func client1() {
 		}
 
 		if msgHead.GetDataLen() > 0 {
-			//msg 是有data数据的，需要再次读取data数据
+			// msg 是有data数据的，需要再次读取data数据
 			msg := msgHead.(*znet.Message)
 			msg.Data = make([]byte, msg.GetDataLen())
 
-			//根据dataLen从io中读取字节流
+			// 根据dataLen从io中读取字节流
 			_, err := io.ReadFull(conn, msg.Data)
 			if err != nil {
 				fmt.Println("server unpack data err:", err)
