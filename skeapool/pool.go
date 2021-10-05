@@ -29,7 +29,7 @@ var ErrNilFunction = errors.New("cannot submit nil function()")
 var ErrPoolOverload = errors.New("pool is full")
 
 // pool represents a group of workers to whom tasks can be assigned.
-type pool struct {
+type Pool struct {
 	// number of workers in the pool
 	poolCapacity int32
 	// queue to hold workers
@@ -49,8 +49,8 @@ type pool struct {
 }
 
 // NewPool returns an instance of pool with the size specified
-func NewPool(newSize int) *pool {
-	newPool := pool{
+func NewPool(newSize int) *Pool {
+	newPool := Pool{
 		poolCapacity: int32(newSize),
 		status:       OPEN,
 		workerQueue:  newWorkerLoopQueue(newSize),
@@ -66,7 +66,7 @@ func NewPool(newSize int) *pool {
 }
 
 // retrieveWorker get a worker
-func (p *pool) retrieveWorker() *worker {
+func (p *Pool) retrieveWorker() *worker {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	w := p.workerQueue.detach()
@@ -100,7 +100,7 @@ func (p *pool) retrieveWorker() *worker {
 }
 
 // revertWorker put the worker into workerQueue
-func (p *pool) revertWorker(worker *worker) bool {
+func (p *Pool) revertWorker(worker *worker) bool {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	if capacity := p.PoolSize(); (capacity > 0 && p.ActiveWorkers() > capacity) || p.IsClosed() {
@@ -117,25 +117,25 @@ func (p *pool) revertWorker(worker *worker) bool {
 
 // Done is called by a worker after completing its task
 // when the workerQueue is full and notify there is a available worker
-func (p *pool) done(w *worker) {
+func (p *Pool) done(w *worker) {
 	p.availableWorkers.Put(w)
 	p.decRunning()
 	p.cond.Signal()
 }
 
 // incRunning increases the number of the currently running goroutines.
-func (p *pool) incRunning() {
+func (p *Pool) incRunning() {
 	atomic.AddInt32(&p.activeWorkers, 1)
 }
 
 // decRunning decreases the number of the currently running goroutines.
-func (p *pool) decRunning() {
+func (p *Pool) decRunning() {
 	atomic.AddInt32(&p.activeWorkers, -1)
 }
 
 // Close closes the pool and makes sure
 // that no more tasks should be accepted
-func (p *pool) Close() {
+func (p *Pool) Close() {
 	p.closePool.Do(func() {
 		atomic.StoreInt32(&p.status, CLOSED)
 		p.workerQueue.reset()
@@ -144,7 +144,7 @@ func (p *pool) Close() {
 }
 
 // Submit submits a new task and assigns it to the pool
-func (p *pool) Submit(task func()) error {
+func (p *Pool) Submit(task func()) error {
 	if task == nil {
 		return ErrNilFunction
 	}
@@ -161,15 +161,15 @@ func (p *pool) Submit(task func()) error {
 }
 
 // AvailableWorkers returns available workers out of total workers
-func (p *pool) AvailableWorkers() int {
+func (p *Pool) AvailableWorkers() int {
 	return p.PoolSize() - p.ActiveWorkers()
 }
 
 // ActiveWorkers returns number of active workers
-func (p *pool) ActiveWorkers() int { return int(atomic.LoadInt32(&p.activeWorkers)) }
+func (p *Pool) ActiveWorkers() int { return int(atomic.LoadInt32(&p.activeWorkers)) }
 
 // PoolSize returns the pool size
-func (p *pool) PoolSize() int { return int(atomic.LoadInt32(&p.poolCapacity)) }
+func (p *Pool) PoolSize() int { return int(atomic.LoadInt32(&p.poolCapacity)) }
 
 // IsClosed return whether the pool is closed
-func (p *pool) IsClosed() bool { return atomic.LoadInt32(&p.status) == CLOSED }
+func (p *Pool) IsClosed() bool { return atomic.LoadInt32(&p.status) == CLOSED }

@@ -9,7 +9,7 @@ type worker struct {
 	// channel that receives a task
 	taskChan chan func()
 	// reference back to the pool who owns this worker
-	pool *pool
+	pool *Pool
 }
 
 // This method executes the task
