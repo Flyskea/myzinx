@@ -3,12 +3,14 @@ package znet
 import (
 	"fmt"
 	"myzinx/config"
+	"myzinx/skeapool"
 	"myzinx/ziface"
 )
 
 type MsgHandle struct {
 	Apis           map[uint64]ziface.IRouter // 存放每个MsgId 所对应的处理方法的map属性
 	WorkerPoolSize uint64                    // 业务工作Worker池的数量
+	pool           *skeapool.Pool            //worker池
 	TaskQueue      []chan ziface.IRequest    // Worker负责取任务的消息队列
 }
 
@@ -57,24 +59,14 @@ func (mh *MsgHandle) StartOneWorker(workerID int, taskQueue chan ziface.IRequest
 
 // 启动worker工作池
 func (mh *MsgHandle) StartWorkerPool() {
-	// 遍历需要启动worker的数量，依此启动
-	for i := 0; i < int(mh.WorkerPoolSize); i++ {
-		// 一个worker被启动
-		// 给当前worker对应的任务队列开辟空间
-		mh.TaskQueue[i] = make(chan ziface.IRequest, config.GlobalObject.MaxWorkerTaskLen)
-		// 启动当前Worker，阻塞的等待对应的任务队列是否有消息传递进来
-		go mh.StartOneWorker(i, mh.TaskQueue[i])
-	}
+	mh.pool = skeapool.NewPool(int(mh.WorkerPoolSize))
 }
 
 // 将消息交给TaskQueue,由worker进行处理
 func (mh *MsgHandle) SendMsgToTaskQueue(request ziface.IRequest) {
-	// 根据ConnID来分配当前的连接应该由哪个worker负责处理
-	// 轮询的平均分配法则
-
-	// 得到需要处理此条连接的workerID
-	workerID := request.GetConnection().GetConnID() % mh.WorkerPoolSize
-	fmt.Println("Add ConnID=", request.GetConnection().GetConnID(), " request msgID=", request.GetMsgID(), "to workerID=", workerID)
-	// 将请求消息发送给任务队列
-	mh.TaskQueue[workerID] <- request
+	mh.pool.Submit(
+		func() {
+			mh.DoMsgHandler(request)
+		},
+	)
 }
