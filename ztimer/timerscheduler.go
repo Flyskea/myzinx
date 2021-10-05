@@ -37,7 +37,7 @@ type TimerScheduler struct {
 	IDs []uint64
 }
 
-//  NewTimerScheduler 返回一个定时器调度器 ，主要创建分层定时器，并做关联，并依次启动
+// NewTimerScheduler 返回一个定时器调度器 ，主要创建分层定时器，并做关联，并依次启动
 func NewTimerScheduler() *TimerScheduler {
 
 	// 创建秒级时间轮
@@ -106,7 +106,7 @@ func (ts *TimerScheduler) GetTriggerChan() chan *DelayFunc {
 	return ts.triggerChan
 }
 
-//  HasTimer 是否有时间轮
+// HasTimer 是否有时间轮
 func (ts *TimerScheduler) HasTimer(tID uint64) bool {
 	for i := 0; i < len(ts.IDs); i++ {
 		if ts.IDs[i] == tID {

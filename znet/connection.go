@@ -98,7 +98,7 @@ func (c *Connection) StartReader() {
 	defer c.Stop()
 
 	for {
-		//  创建拆包解包的对象
+		// 创建拆包解包的对象
 		dp := NewDataPack()
 
 		// 读取客户端的Msg head
@@ -202,7 +202,7 @@ func (c *Connection) Stop() {
 	c.isClosed = true
 	// 如果用户注册了该链接的关闭回调业务，那么在此刻应该显示调用
 	c.TcpServer.CallOnConnStop(c)
-	//  关闭socket链接
+	// 关闭socket链接
 	c.Conn.Close()
 	// 关闭Writer Goroutine
 	c.ExitBuffChan <- true

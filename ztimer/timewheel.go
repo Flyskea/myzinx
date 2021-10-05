@@ -37,7 +37,7 @@ type TimeWheel struct {
 	maxCap int
 	// 当前时间轮上的所有timer
 	timerQueue map[int]map[uint64]*Timer // map[int] VALUE  其中int表示当前时间轮的刻度,
-	//  map[int] map[uint64] *Timer, uint64表示Timer的ID号
+	// map[int] map[uint64] *Timer, uint64表示Timer的ID号
 	// 下一层时间轮
 	nextTimeWheel *TimeWheel
 	// 互斥锁（继承RWMutex的 RWLock,UnLock 等方法）
@@ -46,10 +46,10 @@ type TimeWheel struct {
 
 // NewTimeWheel  创建一个时间轮
 func NewTimeWheel(name string, interval int64, scales int, maxCap int) *TimeWheel {
-	//  name：时间轮的名称
-	//  interval：每个刻度之间的duration时间间隔
-	//  scales:当前时间轮的轮盘一共多少个刻度(如我们正常的时钟就是12个刻度)
-	//  maxCap: 每个刻度所最大保存的Timer定时器个数
+	// name：时间轮的名称
+	// interval：每个刻度之间的duration时间间隔
+	// scales:当前时间轮的轮盘一共多少个刻度(如我们正常的时钟就是12个刻度)
+	// maxCap: 每个刻度所最大保存的Timer定时器个数
 
 	tw := &TimeWheel{
 		name:       name,

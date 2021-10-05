@@ -3,10 +3,10 @@ package skeapool
 import "errors"
 
 var (
-	//  errQueueIsFull will be returned when the worker queue is full.
+	// errQueueIsFull will be returned when the worker queue is full.
 	errQueueIsFull = errors.New("the queue is full")
 
-	//  errQueueIsReleased will be returned when trying to insert item to a released worker queue.
+	// errQueueIsReleased will be returned when trying to insert item to a released worker queue.
 	errQueueIsReleased = errors.New("the queue length is zero")
 )
 
@@ -89,11 +89,8 @@ func (wq *loopQueue) reset() {
 	if wq.isEmpty() {
 		return
 	}
-
-Releasing:
-	if w := wq.detach(); w != nil {
+	for w := wq.detach(); w != nil; {
 		w.taskChan <- nil
-		goto Releasing
 	}
 	wq.items = wq.items[:0]
 	wq.size = 0
