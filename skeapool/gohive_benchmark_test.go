@@ -51,7 +51,7 @@ func BenchmarkSemaphore(b *testing.B) {
 
 func BenchmarkSkeaPool(b *testing.B) {
 	var wg sync.WaitGroup
-	p := NewPool(BenchAntsSize)
+	p, _ := NewPool(BenchAntsSize)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		wg.Add(RunTimes)
@@ -88,7 +88,7 @@ func BenchmarkSemaphoreThroughput(b *testing.B) {
 }
 
 func BenchmarkSkeaPoolThroughput(b *testing.B) {
-	p := NewPool(BenchAntsSize)
+	p, _ := NewPool(BenchAntsSize)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < RunTimes; j++ {
