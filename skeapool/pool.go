@@ -12,9 +12,6 @@ const (
 
 	// CLOSED indicates that the pool is closed and won't accept new tasks
 	CLOSED int32 = 0
-
-	// DefaultPoolSize is a default size for number of workers in the pool
-	DefaultPoolSize = 10
 )
 
 // ErrInvalidPoolSize indicates that the pool size is invalid
@@ -49,7 +46,10 @@ type Pool struct {
 }
 
 // NewPool returns an instance of pool with the size specified
-func NewPool(newSize int) *Pool {
+func NewPool(newSize int) (*Pool, error) {
+	if newSize <= 0 {
+		return nil, ErrInvalidPoolSize
+	}
 	newPool := Pool{
 		poolCapacity: int32(newSize),
 		status:       OPEN,
@@ -62,7 +62,7 @@ func NewPool(newSize int) *Pool {
 			taskChan: make(chan func(), 1),
 		}
 	}
-	return &newPool
+	return &newPool, nil
 }
 
 // retrieveWorker get a worker

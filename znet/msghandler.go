@@ -59,7 +59,11 @@ func (mh *MsgHandle) StartOneWorker(workerID int, taskQueue chan ziface.IRequest
 
 // 启动worker工作池
 func (mh *MsgHandle) StartWorkerPool() {
-	mh.pool = skeapool.NewPool(int(mh.WorkerPoolSize))
+	var err error
+	mh.pool, err = skeapool.NewPool(int(mh.WorkerPoolSize))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // 将消息交给TaskQueue,由worker进行处理
