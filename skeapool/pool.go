@@ -138,7 +138,9 @@ func (p *Pool) decRunning() {
 func (p *Pool) Close() {
 	p.closePool.Do(func() {
 		atomic.StoreInt32(&p.status, CLOSED)
+		p.lock.Lock()
 		p.workerQueue.reset()
+		p.lock.Unlock()
 		p.cond.Broadcast()
 	})
 }
