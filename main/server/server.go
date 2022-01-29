@@ -74,7 +74,15 @@ func DoConnectionLost(conn ziface.IConnection) {
 
 func main() {
 	// 创建一个server句柄
-	s := znet.NewServer()
+	s := znet.NewServer(&znet.ServerOption{
+		IPVersion:  "tcp4",
+		IP:         "127.0.0.1",
+		Packer:     znet.NewDataPack(),
+		Port:       7777,
+		ConnMgr:    znet.NewConnManager(),
+		MsgHandler: znet.NewMsgHandle(),
+		Name:       "fuck",
+	})
 
 	// 注册链接hook回调函数
 	s.SetOnConnStart(DoConnectionBegin)

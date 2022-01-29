@@ -9,6 +9,17 @@ import (
 	"time"
 )
 
+type ServerOption struct {
+	Packer     ziface.IDataPack
+	Codec      ziface.ICodec
+	MsgHandler ziface.IMsgHandle
+	ConnMgr    ziface.IConnManager
+	Name       string
+	IPVersion  string
+	IP         string
+	Port       int
+}
+
 // iServer 接口实现，定义一个Server服务类
 type Server struct {
 	// 服务器的名称
@@ -23,7 +34,10 @@ type Server struct {
 	msgHandler ziface.IMsgHandle
 	// 当前Server的链接管理器
 	ConnMgr ziface.IConnManager
-	Codec   ziface.ICodec
+	// 编解码器
+	Codec ziface.ICodec
+	// 解析消息
+	Packer ziface.IDataPack
 	// =======================
 	// 新增两个hook函数原型
 
@@ -48,6 +62,10 @@ func CallBackToClient(conn *net.TCPConn, data []byte, cnt int) error {
 
 func (s *Server) GetCodec() ziface.ICodec {
 	return s.Codec
+}
+
+func (s *Server) GetPacker() ziface.IDataPack {
+	return s.Packer
 }
 
 // 开启网络服务
@@ -166,18 +184,16 @@ func (s *Server) CallOnConnStop(conn ziface.IConnection) {
 /*
   创建一个服务器句柄
 */
-func NewServer() ziface.IServer {
-	// 先初始化全局配置文件
-	config.GlobalObject.Reload()
-
+func NewServer(opt *ServerOption) ziface.IServer {
 	s := &Server{
-		Name:       config.GlobalObject.Name, // 从全局参数获取
-		IPVersion:  "tcp4",
-		IP:         config.GlobalObject.Host,    // 从全局参数获取
-		Port:       config.GlobalObject.TcpPort, // 从全局参数获取
-		msgHandler: NewMsgHandle(),              // msgHandler 初始化
-		ConnMgr:    NewConnManager(),            // 创建ConnManager
-		Codec:      &JsonCodec{},
+		Name:       opt.Name,
+		IPVersion:  opt.IPVersion,
+		IP:         opt.IP,
+		Port:       opt.Port,
+		msgHandler: opt.MsgHandler,
+		ConnMgr:    opt.ConnMgr,
+		Codec:      opt.Codec,
+		Packer:     opt.Packer,
 	}
 	return s
 }

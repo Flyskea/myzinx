@@ -60,7 +60,7 @@ func (c *Connection) SendMsg(msgID uint64, data []byte) error {
 		return errors.New("Connection closed when send msg")
 	}
 	// 将data封包，并且发送
-	dp := NewDataPack()
+	dp := c.TcpServer.GetPacker()
 	msg, err := dp.Pack(NewMsgPackage(msgID, data))
 	if err != nil {
 		fmt.Println("Pack error msg id = ", msgID)
@@ -78,7 +78,7 @@ func (c *Connection) SendBuffMsg(msgID uint64, data []byte) error {
 		return errors.New("Connection closed when send buff msg")
 	}
 	// 将data封包，并且发送
-	dp := NewDataPack()
+	dp := c.TcpServer.GetPacker()
 	msg, err := dp.Pack(NewMsgPackage(msgID, data))
 	if err != nil {
 		fmt.Println("Pack error msg id = ", msgID)
@@ -99,7 +99,7 @@ func (c *Connection) StartReader() {
 
 	for {
 		// 创建拆包解包的对象
-		dp := NewDataPack()
+		dp := c.TcpServer.GetPacker()
 
 		// 读取客户端的Msg head
 		headData := make([]byte, dp.GetHeadLen())

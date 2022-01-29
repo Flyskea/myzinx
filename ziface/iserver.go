@@ -14,6 +14,8 @@ type IServer interface {
 	GetConnMgr() IConnManager
 	// 得到编解码器
 	GetCodec() ICodec
+	// 得到Packer
+	GetPacker() IDataPack
 	// 设置该Server的连接创建时Hook函数
 	SetOnConnStart(func(IConnection))
 	// 设置该Server的连接断开时的Hook函数
