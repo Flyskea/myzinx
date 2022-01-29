@@ -23,6 +23,7 @@ type Server struct {
 	msgHandler ziface.IMsgHandle
 	// 当前Server的链接管理器
 	ConnMgr ziface.IConnManager
+	Codec   ziface.ICodec
 	// =======================
 	// 新增两个hook函数原型
 
@@ -44,6 +45,10 @@ func CallBackToClient(conn *net.TCPConn, data []byte, cnt int) error {
 }
 
 // ============== 实现 ziface.IServer 里的全部接口方法 ========
+
+func (s *Server) GetCodec() ziface.ICodec {
+	return s.Codec
+}
 
 // 开启网络服务
 func (s *Server) Start() {
@@ -172,6 +177,7 @@ func NewServer() ziface.IServer {
 		Port:       config.GlobalObject.TcpPort, // 从全局参数获取
 		msgHandler: NewMsgHandle(),              // msgHandler 初始化
 		ConnMgr:    NewConnManager(),            // 创建ConnManager
+		Codec:      &JsonCodec{},
 	}
 	return s
 }

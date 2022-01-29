@@ -12,6 +12,8 @@ type IServer interface {
 	AddRouter(msgID uint64, router IRouter)
 	// 得到链接管理
 	GetConnMgr() IConnManager
+	// 得到编解码器
+	GetCodec() ICodec
 	// 设置该Server的连接创建时Hook函数
 	SetOnConnStart(func(IConnection))
 	// 设置该Server的连接断开时的Hook函数

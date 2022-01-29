@@ -131,8 +131,9 @@ func (c *Connection) StartReader() {
 
 		// 得到当前客户端请求的Request数据
 		req := Request{
-			conn: c,
-			msg:  msg, // 将之前的buf 改成 msg
+			conn:  c,
+			msg:   msg, // 将之前的buf 改成 msg
+			codec: c.TcpServer.GetCodec(),
 		}
 		if config.GlobalObject.WorkerPoolSize > 0 {
 			// 已经启动工作池机制，将消息交给Worker处理
@@ -155,6 +156,7 @@ func (c *Connection) StartWriter() {
 		select {
 		case data := <-c.msgChan:
 			// 有数据要写给客户端
+			data, _ = c.TcpServer.GetCodec().Encode(&data)
 			if _, err := c.Conn.Write(data); err != nil {
 				fmt.Println("Send Data error:, ", err, " Conn Writer exit")
 				return
@@ -163,6 +165,7 @@ func (c *Connection) StartWriter() {
 		case data, ok := <-c.msgBuffChan:
 			if ok {
 				// 有数据要写给客户端
+				data, _ = c.TcpServer.GetCodec().Encode(&data)
 				if _, err := c.Conn.Write(data); err != nil {
 					fmt.Println("Send Buff Data error:, ", err, " Conn Writer exit")
 					return
