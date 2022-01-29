@@ -156,7 +156,9 @@ func (c *Connection) StartWriter() {
 		select {
 		case data := <-c.msgChan:
 			// 有数据要写给客户端
-			data, _ = c.TcpServer.GetCodec().Encode(&data)
+			if codec := c.TcpServer.GetCodec(); codec != nil {
+				data, _ = codec.Encode(&data)
+			}
 			if _, err := c.Conn.Write(data); err != nil {
 				fmt.Println("Send Data error:, ", err, " Conn Writer exit")
 				return
@@ -165,7 +167,9 @@ func (c *Connection) StartWriter() {
 		case data, ok := <-c.msgBuffChan:
 			if ok {
 				// 有数据要写给客户端
-				data, _ = c.TcpServer.GetCodec().Encode(&data)
+				if codec := c.TcpServer.GetCodec(); codec != nil {
+					data, _ = codec.Encode(&data)
+				}
 				if _, err := c.Conn.Write(data); err != nil {
 					fmt.Println("Send Buff Data error:, ", err, " Conn Writer exit")
 					return
