@@ -11,15 +11,12 @@ type MsgHandle struct {
 	Apis           map[uint64]ziface.IRouter // 存放每个MsgId 所对应的处理方法的map属性
 	WorkerPoolSize uint64                    // 业务工作Worker池的数量
 	pool           *skeapool.Pool            //worker池
-	TaskQueue      []chan ziface.IRequest    // Worker负责取任务的消息队列
 }
 
 func NewMsgHandle() *MsgHandle {
 	return &MsgHandle{
 		Apis:           make(map[uint64]ziface.IRouter),
 		WorkerPoolSize: config.GlobalObject.WorkerPoolSize,
-		// 一个worker对应一个queue
-		TaskQueue: make([]chan ziface.IRequest, config.GlobalObject.WorkerPoolSize),
 	}
 }
 
@@ -48,18 +45,13 @@ func (mh *MsgHandle) AddRouter(msgID uint64, router ziface.IRouter) {
 	fmt.Println("Add api msgID = ", msgID)
 }
 
-// 启动一个Worker工作流程
-func (mh *MsgHandle) StartOneWorker(workerID int, taskQueue chan ziface.IRequest) {
-	fmt.Println("Worker ID = ", workerID, " is started.")
-	// 不断的等待队列中的消息
-	for request := range taskQueue {
-		mh.DoMsgHandler(request)
-	}
-}
-
 // 启动worker工作池
 func (mh *MsgHandle) StartWorkerPool() {
-	mh.pool = skeapool.NewPool(int(mh.WorkerPoolSize))
+	var err error
+	mh.pool, err = skeapool.NewPool(int(mh.WorkerPoolSize))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // 将消息交给TaskQueue,由worker进行处理
